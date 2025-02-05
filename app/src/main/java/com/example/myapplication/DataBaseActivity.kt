@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.crepowermay.ezui.*
 import com.crepowermay.ezui.collection.CardList
+import com.crepowermay.ezui.router.Router
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.MainState
 import java.util.concurrent.CompletableFuture
@@ -37,6 +39,11 @@ class DataBaseActivity : ComponentActivity() {
                 DatabaseScreen(intent)
             }
         }
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        Router.back(this, false)
     }
 
     @Composable
@@ -63,34 +70,6 @@ class DataBaseActivity : ComponentActivity() {
                     )
                 }
 
-                val cardList = remember {
-                    CardList(context)
-                }
-                cardList.setCustomHeight(200)
-                cardList.setCustomStyle(Color.WHITE, Color.BLACK)
-                cardList.setData(listOf("1", "2", "3", "4", "5"))
-                cardList.setOnLoadMoreListener { callback ->
-                    // do something
-                    CompletableFuture.supplyAsync {
-                        val httpRequest = HttpRequest()
-                        // 請求成功
-                        httpRequest.get(
-                            "http://10.0.2.2:3000/longTime",
-                            { responseData ->
-
-                                // 請求成功
-                                callback.onDataLoaded(responseData.data)
-                                true
-                            },
-                            { throwable ->
-
-                                // 請求失敗
-                                throwable.printStackTrace()
-                                false
-                            }).join() // 等待請求完成
-                        true
-                    }
-                }
 
                 var statefulButton = remember {
                     StatefulButton(
@@ -117,8 +96,7 @@ class DataBaseActivity : ComponentActivity() {
                 statefulButton.setOnClickListener {
 
                     // 返回前一頁
-                    finish()
-
+                    Router.back(context)
                 }
 
                 AndroidView(
